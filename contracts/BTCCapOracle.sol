@@ -6,7 +6,7 @@ contract BTCCapOracle {
   address public owner;
 
   // BTC Marketcap Storage
-  uint private _btcMarketCap;
+  uint public _btcMarketCap;
 
   // Callback function
   event CallbackGetBTCCap();
@@ -21,8 +21,7 @@ contract BTCCapOracle {
   }
 
   function setBTCCap(uint cap) public {
-    // If it isn't sent by a trusted oracle
-    // a.k.a ourselves, ignore it
+    // If it isn't sent by a trusted oracle, a.k.a ourselves, ignore it
     require(msg.sender == owner, "This function is restricted to the contract's owner");
     _btcMarketCap = cap;
   }
