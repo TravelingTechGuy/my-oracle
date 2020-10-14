@@ -6,7 +6,7 @@ contract BTCCapOracle {
   address public owner;
 
   // BTC Marketcap Storage
-  uint public _btcMarketCap;
+  uint private _btcMarketCap;
 
   // Callback function
   event CallbackGetBTCCap();
