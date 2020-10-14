@@ -14,5 +14,12 @@ contract('BTCCapOracle', accounts => {
       const cap = Number(utils.fromWei(await instance.getBTCCap(), 'ether'));
       assert(Number.isInteger(cap));
     });
+
+    it('gets an event', async () => {
+      let eventReceived = false;
+      instance.CallbackGetBTCCap().on('data', _ => {eventReceived = true});
+      await instance.updateBTCCap();
+      assert(eventReceived);
+    });
   });
 });
