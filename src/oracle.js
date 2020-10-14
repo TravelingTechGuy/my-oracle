@@ -13,23 +13,18 @@ web3.eth.getAccounts(async (err, accounts) => {
   try {
     const oracleInstance = await oracleContract.deployed();
     // Watch event and respond to event with a callback function
-    oracleInstance.CallbackGetBTCCap()
-      .on('transactionHash', console.log)
-      .on('receipt', console.log)
-      .on('error', console.error)
-      .on('confirmation', (num, receipt) => console.log(num, receipt))
-      .on('data', async event => {
-        console.log('update requested!', event);
-        try {  
-          // Fetch data and update it into the contract
-          const btcMarketCap = await getBTCCap();
-          // Send data back contract on-chain
-          oracleInstance.setBTCCap(btcMarketCap, {from: accounts[0]});
-        }
-        catch(err) {
-          console.error(err);
-        }
-      });
+    oracleInstance.CallbackGetBTCCap().on('data', async event => {
+      console.log('update requested!', event);
+      try {  
+        // Fetch data and update it into the contract
+        const btcMarketCap = await getBTCCap();
+        // Send data back contract on-chain
+        oracleInstance.setBTCCap(btcMarketCap, {from: accounts[0]});
+      }
+      catch(err) {
+        console.error(err);
+      }
+    });
   }
   catch(err) {
     console.error(err);
