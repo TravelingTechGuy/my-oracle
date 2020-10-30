@@ -1,32 +1,30 @@
-const contract = require('@truffle/contract');
-const Web3 = require('web3');
+const {ethers, Contract} = require('ethers');
 const {getBTCCap} = require('./getBTCCap');
 const OracleContract = require('../build/contracts/BTCCapOracle.json');
 
-const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'));
-// Truffle abstraction to interact with our deployed contract
-let oracleContract = contract(OracleContract);
-oracleContract.setProvider(web3.currentProvider);
+const main = async () => {
+  const provider = new ethers.providers.JsonRpcProvider('http://localhost:7545');
 
-// Get accounts from web3
-web3.eth.getAccounts(async (err, accounts) => {
-  try {
-    const oracleInstance = await oracleContract.deployed();
-    // Watch event and respond to event with a callback function
-    oracleInstance.CallbackGetBTCCap().on('data', async event => {
-      console.log('update requested!', event);
-      try {  
-        // Fetch data and update it into the contract
-        const btcMarketCap = await getBTCCap();
-        // Send data back contract on-chain
-        oracleInstance.setBTCCap(btcMarketCap, {from: accounts[0]});
-      }
-      catch(err) {
-        console.error(err);
-      }
-    });
-  }
-  catch(err) {
-    console.error(err);
-  }
-});
+  // Getting the accounts
+  const signer = await provider.getSigner(0);
+  const adminAccount = await signer.getAddress();
+  const contract = new Contract(
+    OracleContract.networks['5777'].address,
+    OracleContract.abi,
+    signer
+  );
+  
+  const instance = await contract.deployed();
+  // listen to event
+  instance.on('CallbackGetBTCCap', async data => {
+    console.log('Oracle called at ', (new Date()).toLocaleTimeString());
+    // get value from internet
+    const btcMarketCap = await getBTCCap();
+    console.log('value retrieved: ', btcMarketCap);
+    // Send data back contract on-chain
+    await instance.setBTCCap(btcMarketCap, {from: adminAccount});
+    console.log('value saved to contract');
+  });
+};
+
+main();

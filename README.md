@@ -25,6 +25,8 @@ You'll need to run it twice to see the value change from 0.
 
 Run `truffle test` or `node run test`.
 
-## WIP !!!
+## Tech
 
-Currently the Oracle script runs and exits - not waiting around for the client. This stems from the fact there's no longer a `watch` function in Truffle, and instead, events return EventEmitters. That's what I'm trying to solve right now.
+The `oracle.js` script uses `ethers.js` and JSONRpc provider to connect to Ganache, since the `Web3.js` HTTPProvider does not react to contract events.  
+
+I left the `client.js` using `Web3.js` for reference.
