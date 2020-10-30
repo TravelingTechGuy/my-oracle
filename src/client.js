@@ -14,10 +14,11 @@ web3.eth.getAccounts(async (err, accounts) => {
     const oracleInstance = await oracleContract.deployed();
     console.log('Requesting Oracle update BTC Cap Information...');
     const result = await Promise.all([
-      oracleInstance.updateBTCCap({from: accounts[0]}),  // Request oracle to update the information
+      oracleInstance.updateBTCCap({from: accounts[1]}),  // Request oracle to update the information
       oracleInstance.getBTCCap()                         // Get currently stored BTC Cap
     ])
-    console.log('BTC Market Cap: ' + result[1]);
+    console.log('BTC Market Cap before update: ' + result[1]);
+    process.exit();
   }
   catch(err) {
     console.error(err);

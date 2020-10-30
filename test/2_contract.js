@@ -15,11 +15,22 @@ contract('BTCCapOracle', accounts => {
       assert(utils.BN.isBN(cap));
     });
     
-    it('fires an event', async () => {
-      let eventReceived = false;
-      instance.CallbackGetBTCCap().on('data', () => {eventReceived = true});
-      await instance.updateBTCCap();
-      assert.equal(eventReceived, true);
+    //use `.once` for events, to prevnt having the event around for the next test
+    //in "real life", use `.on`
+    it('fires an event', done => {
+      instance.CallbackGetBTCCap().once('data', () => {
+        done();
+      });
+      instance.updateBTCCap();
+    });
+
+    it('event returns address of caller', done => {
+      let address = accounts[2];
+      instance.CallbackGetBTCCap().once('data', data => {
+        assert.equal(data.args.caller, address);
+        done();
+      });
+      instance.updateBTCCap({from: address});
     });
 
     it('stores the proper market cap', done => {

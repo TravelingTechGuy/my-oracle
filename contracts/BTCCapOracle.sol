@@ -3,13 +3,13 @@ pragma solidity >=0.4.22 <0.8.0;
 
 contract BTCCapOracle {
   // Contract owner
-  address public owner;
+  address private owner;
 
   // BTC Marketcap Storage
-  uint256 public _btcMarketCap;
+  uint256 private _btcMarketCap;
 
   // Callback function
-  event CallbackGetBTCCap();
+  event CallbackGetBTCCap(address caller);
 
   constructor() public {
     owner = msg.sender;
@@ -17,7 +17,7 @@ contract BTCCapOracle {
 
   function updateBTCCap() public {
     // Calls the callback function
-    emit CallbackGetBTCCap();
+    emit CallbackGetBTCCap(msg.sender);
   }
 
   function setBTCCap(uint256 cap) public {

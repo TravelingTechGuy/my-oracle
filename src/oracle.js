@@ -14,10 +14,12 @@ const main = async () => {
     signer
   );
   
+  const now = () => (new Date()).toLocaleString();
+
   const instance = await contract.deployed();
   // listen to event
   instance.on('CallbackGetBTCCap', async data => {
-    console.log('Oracle called at ', (new Date()).toLocaleTimeString());
+    console.log('Oracle called at %s by %s', now(), data);
     // get value from internet
     const btcMarketCap = await getBTCCap();
     console.log('value retrieved: ', btcMarketCap);
@@ -25,6 +27,7 @@ const main = async () => {
     await instance.setBTCCap(btcMarketCap, {from: adminAccount});
     console.log('value saved to contract');
   });
+  console.log('Oracle started at', now());
 };
 
 main();
