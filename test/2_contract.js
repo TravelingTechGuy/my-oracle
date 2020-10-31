@@ -3,6 +3,8 @@ const BTCCapOracle = artifacts.require('BTCCapOracle');
 const {getBTCCap} = require('../src/getBTCCap');
 
 contract('BTCCapOracle', accounts => {
+  const [owner, user, _] = accounts;
+
   describe('contract attributes', () => {
     let instance;
 
@@ -25,15 +27,14 @@ contract('BTCCapOracle', accounts => {
     });
 
     it('event returns address of caller', done => {
-      let address = accounts[2];
       instance.CallbackGetBTCCap().once('data', data => {
-        assert.equal(data.args.caller, address);
+        assert.equal(data.args.caller, user);
         done();
       });
-      instance.updateBTCCap({from: address});
+      instance.updateBTCCap({from: user});
     });
 
-    it('stores the proper market cap', done => {
+    it('updates and stores the proper market cap', done => {
       instance.CallbackGetBTCCap().on('data', async () => {
         let retrievedCap = await getBTCCap();
         await instance.setBTCCap(retrievedCap, {from: accounts[0]});
@@ -43,6 +44,24 @@ contract('BTCCapOracle', accounts => {
       });
 
       instance.updateBTCCap();
+    });
+
+    it('owner can set cap', async () => {
+      const newCap = 10;
+      await instance.setBTCCap(newCap, {from: owner});
+      const cap = utils.toBN(await instance.getBTCCap()).toNumber();
+      assert.equal(cap, newCap);
+    });
+
+    it('user who is not owner cannot set cap', async () => {
+      try {
+        const newCap = 10;
+        await instance.setBTCCap(newCap, {from: user});
+        assert.fail('should not work');
+      }
+      catch(err) {
+        assert(err.message.includes('This function is restricted to the contract\'s owner'));
+      }
     });
   });
 });
